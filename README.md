@@ -29,7 +29,7 @@ const milton = {
 - **Second brain systems:** persistent memory and knowledge layers that give AI agents long-term context
 - **Operations automation:** AI-driven workflows for business-critical processes, built for reliability and auditability
 - **LLM pipelines:** document and conversation processing, summarization and agent orchestration
-- **Meta platform integrations:** working with Meta APIs (such as WhatsApp Business) as a technology provider
+- **Meta Tech Provider experience:** integrating Meta APIs (such as WhatsApp Business) on behalf of customers, from inside a SaaS product
 
 Details, repositories and client names stay private. Happy to talk about the approach, not the specifics.
 
