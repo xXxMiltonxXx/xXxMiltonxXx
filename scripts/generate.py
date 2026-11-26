@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generates the profile SVGs (stats, activity, languages) in the TwinPods palette.
+"""Generates the profile SVGs (stats, activity, languages) with a flat, GitHub-native palette.
 
 Data sources:
   - public contribution calendar (what visitors see): https://github.com/users/<user>/contributions
@@ -21,11 +21,11 @@ USER = sys.argv[1] if len(sys.argv) > 1 else "xXxMiltonxXx"
 OUT = Path(__file__).resolve().parent.parent / "assets"
 W = 840
 
-# Palette shared with TwinPods
-BG1, BG2 = "#0b0b2b", "#1b0f40"
-CYAN, VIOLET, MAGENTA = "#22d3ee", "#7c3aed", "#e879f9"
-TEXT, MUTED = "#e6e9ff", "#8b90c0"
-LANG_COLORS = ["#22d3ee", "#7c3aed", "#e879f9", "#38bdf8", "#a78bfa", "#f472b6", "#34d399", "#475569"]
+# Flat, GitHub-dark palette (no gradients)
+BG, CARD, BORDER = "#0d1117", "#161b22", "#30363d"
+ACCENT = "#2f81f7"
+TEXT, MUTED = "#e6edf3", "#8b949e"
+LANG_COLORS = ["#2f81f7", "#3fb950", "#d29922", "#a371f7", "#db6d28", "#f778ba", "#39c5cf", "#6e7681"]
 FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
 
 
@@ -72,19 +72,14 @@ def streaks(days):
 
 def frame(h, body, defs=""):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}" font-family="{FONT}">
-<defs>
-<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{BG1}"/><stop offset="1" stop-color="{BG2}"/></linearGradient>
-<linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{CYAN}"/><stop offset="1" stop-color="{MAGENTA}"/></linearGradient>
-<linearGradient id="bar" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="{VIOLET}"/><stop offset="1" stop-color="{CYAN}"/></linearGradient>
+<rect x="0.5" y="0.5" width="{W-1}" height="{h-1}" rx="10" fill="{BG}" stroke="{BORDER}"/>
 {defs}
-</defs>
-<rect x="1" y="1" width="{W-2}" height="{h-2}" rx="18" fill="url(#bg)" stroke="{VIOLET}" stroke-opacity=".45" stroke-width="2"/>
 {body}
 </svg>'''
 
 
 def title(text, sub=""):
-    s = f'<text x="32" y="44" fill="url(#accent)" font-size="20" font-weight="700">{esc(text)}</text>'
+    s = f'<text x="32" y="44" fill="{TEXT}" font-size="18" font-weight="600">{esc(text)}</text>'
     if sub:
         s += f'<text x="{W-32}" y="44" fill="{MUTED}" font-size="13" text-anchor="end">{esc(sub)}</text>'
     return s
@@ -102,14 +97,14 @@ def stats_svg(days, prof):
         (str(prof["repositories"]["totalCount"]), "Repositories"),
         (str(prof["followers"]["totalCount"]), "Followers"),
     ]
-    body = title("GitHub at a glance", f"@{USER}")
+    body = title("GitHub overview", f"@{USER}")
     cw, ch = (W - 64) / 3, 78
     for i, (num, label) in enumerate(tiles):
         x = 32 + (i % 3) * cw
         y = 70 + (i // 3) * (ch + 8)
         body += f'''<g style="animation:fade .6s ease both;animation-delay:{i*0.08:.2f}s">
-<rect x="{x:.0f}" y="{y}" width="{cw-12:.0f}" height="{ch}" rx="12" fill="#ffffff" fill-opacity=".04" stroke="{CYAN}" stroke-opacity=".18"/>
-<text x="{x+20:.0f}" y="{y+40}" fill="url(#accent)" font-size="32" font-weight="800">{esc(num)}</text>
+<rect x="{x:.0f}" y="{y}" width="{cw-12:.0f}" height="{ch}" rx="12" fill="{CARD}" stroke="{BORDER}"/>
+<text x="{x+20:.0f}" y="{y+40}" fill="{TEXT}" font-size="30" font-weight="700">{esc(num)}</text>
 <text x="{x+20:.0f}" y="{y+62}" fill="{MUTED}" font-size="12.5">{esc(label)}</text></g>'''
     style = "<style>@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}</style>"
     return frame(250, style + body)
@@ -130,7 +125,7 @@ def activity_svg(days):
     for i, (k, v) in enumerate(zip(keys, vals)):
         h = max(3, v / top * bh)
         x = bx + i * step + (step - bw) / 2
-        body += (f'<rect x="{x:.1f}" y="{by+bh-h:.1f}" width="{bw}" height="{h:.1f}" rx="6" fill="url(#bar)" '
+        body += (f'<rect x="{x:.1f}" y="{by+bh-h:.1f}" width="{bw}" height="{h:.1f}" rx="6" fill="{ACCENT}" '
                  f'style="transform-box:fill-box;transform-origin:bottom;animation:grow .8s ease both;animation-delay:{i*0.06:.2f}s"/>')
         body += f'<text x="{x+bw/2:.1f}" y="{by+bh-h-6:.1f}" fill="{TEXT}" font-size="11" text-anchor="middle">{v}</text>'
         body += f'<text x="{x+bw/2:.1f}" y="{by+bh+18}" fill="{MUTED}" font-size="11" text-anchor="middle">{names[int(k[5:])-1]}</text>'
@@ -138,7 +133,7 @@ def activity_svg(days):
     start = date.fromisoformat(items[0][0])
     mx = max([v for _, v in items] + [1])
     cell, gap, hx, hy = 12, 3, 36, 250
-    levels = ["#ffffff0d", "#22d3ee55", "#22d3ee99", "#7c3aedcc", "#e879f9"]
+    levels = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]
     for d, v in items:
         dt = date.fromisoformat(d)
         col = (dt - start).days // 7 if start.weekday() == 6 else ((dt - start).days + (start.weekday() + 1) % 7) // 7
