@@ -72,12 +72,4 @@ Built in Swift on CoreAudio with zero dependencies. It detects connections live 
 
 ---
 
-## 🏆 GitHub Trophies
-
-<p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=xXxMiltonxXx&theme=tokyonight&no-frame=true&no-bg=true&column=7&margin-w=10" alt="Trophies">
-</p>
-
----
-
 <p align="center"><i>Built with curiosity, shipped with coffee ☕</i></p>
