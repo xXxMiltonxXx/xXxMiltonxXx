@@ -32,21 +32,30 @@ def pills(x, y, labels, color=ACCENT):
     return out
 
 
+# Brain icon: "brain-circuit" from Lucide (https://lucide.dev), ISC license.
+BRAIN_PATHS = [
+    "M12 13h4", "M12 18h6a2 2 0 012 2v1", "M12 8h8", "M12 9a4.17 4.17 0 01-3 4", "M16 8V5a2 2 0 012-2",
+    "M6 18a4 4 0 01-2-7.465", "M6.004 5.125a4 4 0 00-2.526 5.77", "M6.294 6.294A3 3 0 1112 5v13a4 4 0 11-7.967-.518",
+]
+BRAIN_NODES = [(16, 13), (18, 3), (20, 21), (20, 8)]
+
+
+def brain(cx, cy, size):
+    k = size / 24
+    g = f'<circle cx="{cx}" cy="{cy}" r="{size*0.62:.0f}" fill="{ACCENT}" fill-opacity=".06" stroke="{ACCENT}" stroke-opacity=".18"/>'
+    g += f'<g transform="translate({cx - size/2:.1f},{cy - size/2:.1f}) scale({k:.3f})" fill="none" stroke="{ACCENT}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'
+    g += "".join(f'<path d="{d}" vector-effect="non-scaling-stroke"/>' for d in BRAIN_PATHS)
+    for i, (x, y) in enumerate(BRAIN_NODES):
+        g += f'<circle cx="{x}" cy="{y}" r="0.9" fill="{ACCENT}" stroke="none" style="animation:pulse 2.6s ease-in-out {i*0.5:.1f}s infinite"/>'
+    return g + "</g>"
+
+
 def hero():
-    nodes = [(610, 52), (700, 36), (780, 70), (650, 112), (740, 128), (800, 168), (590, 170), (690, 186), (560, 92)]
-    edges = [(0, 1), (1, 2), (0, 3), (1, 4), (2, 4), (3, 4), (4, 5), (3, 6), (3, 7), (4, 7), (0, 8), (8, 3), (6, 7)]
-    g = ""
-    for a, b in edges:
-        g += f'<line x1="{nodes[a][0]}" y1="{nodes[a][1]}" x2="{nodes[b][0]}" y2="{nodes[b][1]}" stroke="{ACCENT}" stroke-opacity=".28"/>'
-    for i, (x, y) in enumerate(nodes):
-        r = 5 if i in (3, 4) else 3.5
-        g += (f'<circle cx="{x}" cy="{y}" r="{r}" fill="{ACCENT}" style="animation:pulse 3s ease-in-out {i*0.35:.2f}s infinite"/>'
-              f'<circle cx="{x}" cy="{y}" r="{r+5}" fill="none" stroke="{ACCENT}" stroke-opacity=".25"/>')
     body = (f'<text x="40" y="82" fill="{TEXT}" font-size="40" font-weight="700">Milton Angamarca</text>'
             f'<text x="40" y="116" fill="{ACCENT}" font-size="19" font-weight="600">AI systems engineer</text>'
             f'<text x="40" y="144" fill="{MUTED}" font-size="14.5">Second brain systems · Operations automation · LLM pipelines</text>'
-            + pills(40, 168, ["Python", "TypeScript", "Rust", "Meta Tech Provider"]) + g)
-    style = "@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}"
+            + pills(40, 168, ["Python", "TypeScript", "Rust", "Meta Tech Provider"]) + brain(690, 110, 150))
+    style = "@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}"
     return svg(220, body, style)
 
 
