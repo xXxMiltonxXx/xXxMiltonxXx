@@ -19,9 +19,9 @@ def svg(h, body, style=""):
 
 
 def pill(x, y, label, color=ACCENT):
-    w = len(label) * 7.2 + 22
-    return (f'<rect x="{x:.0f}" y="{y}" width="{w:.0f}" height="26" rx="13" fill="{color}" fill-opacity=".12" stroke="{color}" stroke-opacity=".45"/>'
-            f'<text x="{x + w/2:.0f}" y="{y+17}" fill="{TEXT}" font-size="12" text-anchor="middle">{esc(label)}</text>'), w + 8
+    w = len(label) * 7.9 + 24
+    return (f'<rect x="{x:.0f}" y="{y}" width="{w:.0f}" height="28" rx="14" fill="{color}" fill-opacity=".12" stroke="{color}" stroke-opacity=".45"/>'
+            f'<text x="{x + w/2:.0f}" y="{y+19}" fill="{TEXT}" font-size="13.5" text-anchor="middle">{esc(label)}</text>'), w + 8
 
 
 def pills(x, y, labels, color=ACCENT):
@@ -43,8 +43,8 @@ def brain_image(x, y, height):
 def hero():
     body = (f'<text x="40" y="82" fill="{TEXT}" font-size="40" font-weight="700">Milton Angamarca</text>'
             f'<text x="40" y="116" fill="{ACCENT}" font-size="19" font-weight="600">AI systems engineer</text>'
-            f'<text x="40" y="144" fill="{MUTED}" font-size="14.5">Second brain systems · Operations automation · LLM pipelines</text>'
-            + pills(40, 168, ["Python", "TypeScript", "Rust", "Meta Tech Provider"]) + brain_image(545, 14, 192))
+            f'<text x="40" y="144" fill="{MUTED}" font-size="16">Second brain systems · Operations automation · LLM pipelines</text>'
+            + pills(40, 166, ["Python", "TypeScript", "Rust", "Meta Tech Provider"]) + brain_image(545, 14, 192))
     return svg(220, body)
 
 
@@ -61,11 +61,11 @@ def about():
     body = f'<text x="32" y="44" fill="{TEXT}" font-size="18" font-weight="600">About</text>'
     y = 84
     for n, (label, lines, tags) in enumerate(rows):
-        body += f'<text x="32" y="{y+4}" fill="{MUTED}" font-size="13">{esc(label)}</text>'
+        body += f'<text x="32" y="{y+4}" fill="{MUTED}" font-size="14.5">{esc(label)}</text>'
         if lines:
             for i, ln in enumerate(lines):
-                body += f'<text x="170" y="{y+4+i*22}" fill="{TEXT}" font-size="14">{esc(ln)}</text>'
-            y += 22 * len(lines) + 14
+                body += f'<text x="170" y="{y+4+i*24}" fill="{TEXT}" font-size="15.5">{esc(ln)}</text>'
+            y += 24 * len(lines) + 14
         else:
             body += pills(170, y - 13, tags)
             y += 40
@@ -94,16 +94,16 @@ def focus():
         ("chat", "Meta Tech Provider experience", "Integrating Meta APIs (such as WhatsApp Business) on behalf of customers, from inside a SaaS product."),
     ]
     body = f'<text x="32" y="44" fill="{TEXT}" font-size="18" font-weight="600">What I work on</text>'
-    cw, ch, gap = (W - 64 - 16) / 2, 118, 16
+    cw, ch, gap = (W - 64 - 16) / 2, 138, 16
     for i, (icon, name, desc) in enumerate(cards):
         x = 32 + (i % 2) * (cw + gap)
         y = 66 + (i // 2) * (ch + gap)
         body += f'<rect x="{x:.0f}" y="{y}" width="{cw:.0f}" height="{ch}" rx="10" fill="{CARD}" stroke="{BORDER}"/>'
         body += f'<rect x="{x:.0f}" y="{y+16}" width="3" height="{ch-32}" rx="1.5" fill="{ACCENT}"/>'
         body += f'<g transform="translate({x+24:.0f},{y+20})">{ICONS[icon]}</g>'
-        body += f'<text x="{x+78:.0f}" y="{y+34}" fill="{TEXT}" font-size="15" font-weight="600">{esc(name)}</text>'
-        for j, ln in enumerate(textwrap.wrap(desc, 46)[:3]):
-            body += f'<text x="{x+78:.0f}" y="{y+58+j*18}" fill="{MUTED}" font-size="12.5">{esc(ln)}</text>'
+        body += f'<text x="{x+78:.0f}" y="{y+34}" fill="{TEXT}" font-size="16.5" font-weight="600">{esc(name)}</text>'
+        for j, ln in enumerate(textwrap.wrap(desc, 38)[:4]):
+            body += f'<text x="{x+78:.0f}" y="{y+60+j*20}" fill="{MUTED}" font-size="14">{esc(ln)}</text>'
     h = 66 + 2 * ch + gap + 24
     return svg(h, body)
 

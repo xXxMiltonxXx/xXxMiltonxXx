@@ -100,7 +100,7 @@ def frame(h, body, defs=""):
 def title(text, sub=""):
     s = f'<text x="32" y="44" fill="{TEXT}" font-size="18" font-weight="600">{esc(text)}</text>'
     if sub:
-        s += f'<text x="{W-32}" y="44" fill="{MUTED}" font-size="13" text-anchor="end">{esc(sub)}</text>'
+        s += f'<text x="{W-32}" y="44" fill="{MUTED}" font-size="14" text-anchor="end">{esc(sub)}</text>'
     return s
 
 
@@ -124,7 +124,7 @@ def stats_svg(days, prof):
         body += f'''<g style="animation:fade .6s ease both;animation-delay:{i*0.08:.2f}s">
 <rect x="{x:.0f}" y="{y}" width="{cw-12:.0f}" height="{ch}" rx="12" fill="{CARD}" stroke="{BORDER}"/>
 <text x="{x+20:.0f}" y="{y+40}" fill="{TEXT}" font-size="30" font-weight="700">{esc(num)}</text>
-<text x="{x+20:.0f}" y="{y+62}" fill="{MUTED}" font-size="12.5">{esc(label)}</text></g>'''
+<text x="{x+20:.0f}" y="{y+62}" fill="{MUTED}" font-size="14">{esc(label)}</text></g>'''
     style = "<style>@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}</style>"
     return frame(250, style + body)
 
@@ -146,8 +146,8 @@ def activity_svg(days):
         x = bx + i * step + (step - bw) / 2
         body += (f'<rect x="{x:.1f}" y="{by+bh-h:.1f}" width="{bw}" height="{h:.1f}" rx="6" fill="{ACCENT}" '
                  f'style="transform-box:fill-box;transform-origin:bottom;animation:grow .8s ease both;animation-delay:{i*0.06:.2f}s"/>')
-        body += f'<text x="{x+bw/2:.1f}" y="{by+bh-h-6:.1f}" fill="{TEXT}" font-size="11" text-anchor="middle">{v}</text>'
-        body += f'<text x="{x+bw/2:.1f}" y="{by+bh+18}" fill="{MUTED}" font-size="11" text-anchor="middle">{names[int(k[5:])-1]}</text>'
+        body += f'<text x="{x+bw/2:.1f}" y="{by+bh-h-6:.1f}" fill="{TEXT}" font-size="13" text-anchor="middle">{v}</text>'
+        body += f'<text x="{x+bw/2:.1f}" y="{by+bh+18}" fill="{MUTED}" font-size="13" text-anchor="middle">{names[int(k[5:])-1]}</text>'
     # --- heatmap
     start = date.fromisoformat(items[0][0])
     mx = max([v for _, v in items] + [1])
@@ -160,10 +160,10 @@ def activity_svg(days):
         lvl = 0 if v == 0 else min(4, 1 + int(v / mx * 3.999))
         body += (f'<rect x="{hx + col*(cell+gap)}" y="{hy + row*(cell+gap)}" width="{cell}" height="{cell}" rx="3" '
                  f'fill="{levels[lvl]}" style="animation:fade .5s ease both;animation-delay:{col*0.012:.2f}s"><title>{v} on {d}</title></rect>')
-    body += f'<text x="{hx}" y="{hy+7*(cell+gap)+14}" fill="{MUTED}" font-size="11">Less</text>'
+    body += f'<text x="{hx}" y="{hy+7*(cell+gap)+14}" fill="{MUTED}" font-size="13">Less</text>'
     for i, c in enumerate(levels):
         body += f'<rect x="{hx+32+i*(cell+3)}" y="{hy+7*(cell+gap)+4}" width="{cell}" height="{cell}" rx="3" fill="{c}"/>'
-    body += f'<text x="{hx+32+5*(cell+3)+4}" y="{hy+7*(cell+gap)+14}" fill="{MUTED}" font-size="11">More</text>'
+    body += f'<text x="{hx+32+5*(cell+3)+4}" y="{hy+7*(cell+gap)+14}" fill="{MUTED}" font-size="13">More</text>'
     style = ("<style>@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}"
              "@keyframes fade{from{opacity:0}to{opacity:1}}</style>")
     return frame(250 + 7 * (cell + gap) + 36, style + body)
@@ -221,7 +221,7 @@ def iso_svg(days, prof):
         row = (dt.weekday() + 1) % 7
         cells.append((col + row, col, row, v, d))
     body = '<text x="32" y="44" fill="%s" font-size="18" font-weight="600">Contributions, last year</text>' % TEXT
-    body += '<text x="32" y="64" fill="%s" font-size="12.5">Isometric view · height = activity per day</text>' % MUTED
+    body += '<text x="32" y="64" fill="%s" font-size="14">Isometric view · height = activity per day</text>' % MUTED
     for _, col, row, v, d in sorted(cells):
         lvl = 0 if v == 0 else min(4, 1 + int(v / mx * 3.999))
         h = 2 if v == 0 else 4 + (v / mx) ** 0.7 * 84
@@ -247,8 +247,8 @@ def iso_svg(days, prof):
         pts.append(f"{cx + R*k*math.cos(a):.1f},{cy + R*k*math.sin(a):.1f}")
         lx, ly = cx + (R + 22) * math.cos(a), cy + (R + 20) * math.sin(a)
         anchor = "middle" if abs(math.cos(a)) < .3 else ("start" if math.cos(a) > 0 else "end")
-        labels += (f'<text x="{lx:.0f}" y="{ly:.0f}" fill="{MUTED}" font-size="11" text-anchor="{anchor}">{n}</text>'
-                   f'<text x="{lx:.0f}" y="{ly+13:.0f}" fill="{TEXT}" font-size="11" font-weight="600" text-anchor="{anchor}">{v:,}</text>')
+        labels += (f'<text x="{lx:.0f}" y="{ly:.0f}" fill="{MUTED}" font-size="13" text-anchor="{anchor}">{n}</text>'
+                   f'<text x="{lx:.0f}" y="{ly+15:.0f}" fill="{TEXT}" font-size="13" font-weight="600" text-anchor="{anchor}">{v:,}</text>')
     for ring in (.33, .66, 1):
         ring_pts = " ".join(f"{cx + R*ring*math.cos(-math.pi/2 + i*2*math.pi/5):.1f},{cy + R*ring*math.sin(-math.pi/2 + i*2*math.pi/5):.1f}" for i in range(5))
         body += f'<polygon points="{ring_pts}" fill="none" stroke="{BORDER}"/>'
@@ -263,7 +263,7 @@ def iso_svg(days, prof):
     for i, (num, lab) in enumerate([(f"{total:,}", "contributions"), (str(longest), "longest streak (days)")]):
         y = 300 + i * 62
         body += (f'<text x="620" y="{y}" fill="{TEXT}" font-size="34" font-weight="700">{num}</text>'
-                 f'<text x="620" y="{y+20}" fill="{MUTED}" font-size="12.5">{lab}</text>')
+                 f'<text x="620" y="{y+20}" fill="{MUTED}" font-size="14">{lab}</text>')
 
     # donut: languages
     top = lang_top(prof)
@@ -276,10 +276,10 @@ def iso_svg(days, prof):
                  f'stroke-dasharray="{ln:.2f} {circ-ln:.2f}" stroke-dashoffset="{-off:.2f}" transform="rotate(-90 {dcx} {dcy})"/>')
         off += ln
     for i, (n, sz) in enumerate(top[:6]):
-        y = 318 + i * 17
+        y = 312 + i * 20
         body += (f'<circle cx="176" cy="{y}" r="4.5" fill="{LANG_COLORS[i]}"/>'
-                 f'<text x="188" y="{y+4}" fill="{TEXT}" font-size="12">{esc(n)}</text>'
-                 f'<text x="300" y="{y+4}" fill="{MUTED}" font-size="12" text-anchor="end">{sz/tot*100:.0f}%</text>')
+                 f'<text x="188" y="{y+4}" fill="{TEXT}" font-size="14">{esc(n)}</text>'
+                 f'<text x="300" y="{y+4}" fill="{MUTED}" font-size="14" text-anchor="end">{sz/tot*100:.0f}%</text>')
     return frame(440, body)
 
 
