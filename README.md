@@ -1,35 +1,16 @@
-# Milton Angamarca
+<p align="center">
+  <img src="assets/hero.svg" alt="Milton Angamarca, AI systems engineer" width="100%">
+</p>
 
-**AI systems engineer.** I build second brain systems, operations automation and LLM pipelines.
-
----
-
-## About
-
-```ts
-const milton = {
-  role: "AI systems engineer",
-  focus: [
-    "Second brain systems: persistent memory and knowledge for AI agents",
-    "Operations automation for critical workflows",
-    "LLM pipelines and agent orchestration",
-  ],
-  daily: ["TypeScript", "Python", "Node.js", "Astro"],
-  alsoWrites: ["Rust", "Swift", "C#", "Go", "Kotlin", "Dart"],
-  teaches: "TypeScript, JavaScript and Astro to a university community",
-};
-```
+<p align="center">
+  <img src="assets/about.svg" alt="About" width="100%">
+</p>
 
 > My production work is private by design (security and client confidentiality), so this profile shows only a fraction of it.
 
----
-
-## What I work on
-
-- **Second brain systems:** persistent memory and knowledge layers that give AI agents long-term context
-- **Operations automation:** AI-driven workflows for business-critical processes, built for reliability and auditability
-- **LLM pipelines:** document and conversation processing, summarization and agent orchestration
-- **Meta Tech Provider experience:** integrating Meta APIs (such as WhatsApp Business) on behalf of customers, from inside a SaaS product
+<p align="center">
+  <img src="assets/focus.svg" alt="What I work on" width="100%">
+</p>
 
 Details, repositories and client names stay private. Happy to talk about the approach, not the specifics.
 
