@@ -14,9 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Generate SVGs
-        run: python3 scripts/generate.py
+        # Needs a personal token (secret PROFILE_TOKEN) to see private contributions; skipped otherwise
+        # so a public-only run never overwrites the full charts.
+        run: |
+          if [ -z "$GH_TOKEN" ]; then echo "PROFILE_TOKEN not set, skipping"; exit 0; fi
+          python3 scripts/generate.py
         env:
-          GH_TOKEN: ${{ secrets.PROFILE_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.PROFILE_TOKEN }}
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"

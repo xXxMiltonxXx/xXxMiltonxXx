@@ -44,6 +44,23 @@ def fetch_calendar():
     return OrderedDict(sorted(days.items()))
 
 
+def fetch_calendar_graphql():
+    """Full calendar including private/org contributions; needs a token that can see them."""
+    q = ('query{user(login:"%s"){contributionsCollection{contributionCalendar{weeks{contributionDays'
+         '{date contributionCount}}}}}}' % USER)
+    weeks = graphql(q)["contributionsCollection"]["contributionCalendar"]["weeks"]
+    return OrderedDict((d["date"], d["contributionCount"]) for w in weeks for d in w["contributionDays"])
+
+
+def best_calendar():
+    public = fetch_calendar()
+    try:
+        full = fetch_calendar_graphql()
+    except Exception:
+        return public
+    return full if sum(full.values()) > sum(public.values()) else public
+
+
 def graphql(query):
     out = subprocess.run(["gh", "api", "graphql", "-f", f"query={query}"], capture_output=True, text=True, check=True)
     return json.loads(out.stdout)["data"]["user"]
@@ -90,7 +107,7 @@ def stats_svg(days, prof):
     active = sum(1 for v in days.values() if v)
     cur, longest = streaks(days)
     tiles = [
-        (f"{total:,}", "Contributions · last year"),
+        (f"{total:,}", "Contributions · last year (incl. private)"),
         (str(active), "Active days"),
         (f"{cur}", "Current streak (days)"),
         (f"{longest}", "Longest streak (days)"),
@@ -179,7 +196,7 @@ def languages_svg(prof):
 
 def main():
     OUT.mkdir(exist_ok=True)
-    days, prof = fetch_calendar(), fetch_profile()
+    days, prof = best_calendar(), fetch_profile()
     (OUT / "stats.svg").write_text(stats_svg(days, prof))
     (OUT / "activity.svg").write_text(activity_svg(days))
     (OUT / "languages.svg").write_text(languages_svg(prof))
