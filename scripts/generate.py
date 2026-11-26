@@ -67,7 +67,9 @@ def graphql(query):
 
 
 def fetch_profile():
-    q = ('query{user(login:"%s"){followers{totalCount} repositories(first:100,ownerAffiliations:OWNER,isFork:false)'
+    q = ('query{user(login:"%s"){followers{totalCount} contributionsCollection{totalCommitContributions '
+         'totalIssueContributions totalPullRequestContributions totalPullRequestReviewContributions '
+         'totalRepositoryContributions} repositories(first:100,ownerAffiliations:OWNER,isFork:false)'
          '{totalCount nodes{languages(first:8,orderBy:{field:SIZE,direction:DESC}){edges{size node{name}}}}}}}' % USER)
     return graphql(q)
 
@@ -167,7 +169,7 @@ def activity_svg(days):
     return frame(250 + 7 * (cell + gap) + 36, style + body)
 
 
-def languages_svg(prof):
+def lang_top(prof):
     sizes = {}
     for repo in prof["repositories"]["nodes"]:
         for e in repo["languages"]["edges"]:
@@ -176,6 +178,10 @@ def languages_svg(prof):
     top, rest = ranked[:7], sum(s for _, s in ranked[7:])
     if rest:
         top.append(("Other", rest))
+    return top
+
+
+    top = lang_top(prof)
     total = sum(s for _, s in top) or 1
     body = title("Most used languages", "by code size · all owned repos")
     x, y, bw, bh = 32.0, 66, W - 64, 16
@@ -194,12 +200,95 @@ def languages_svg(prof):
     return frame(210, body)
 
 
+def shade(hex_color, k):
+    r, g, b = (int(hex_color[i:i + 2], 16) for i in (1, 3, 5))
+    return "#%02x%02x%02x" % (int(r * k), int(g * k), int(b * k))
+
+
+BASES = ["#262c36", "#1b4a8a", "#2563c9", "#388bfd", "#79c0ff"]
+
+
+def iso_svg(days, prof):
+    import math
+    items = list(days.items())
+    start = date.fromisoformat(items[0][0])
+    mx = max([v for _, v in items] + [1])
+    dx, dy, ox, oy = 8.66, 5.0, 96, 118
+    cells = []
+    for d, v in items:
+        dt = date.fromisoformat(d)
+        col = ((dt - start).days + (start.weekday() + 1) % 7) // 7
+        row = (dt.weekday() + 1) % 7
+        cells.append((col + row, col, row, v, d))
+    body = '<text x="32" y="44" fill="%s" font-size="18" font-weight="600">Contributions, last year</text>' % TEXT
+    body += '<text x="32" y="64" fill="%s" font-size="12.5">Isometric view · height = activity per day</text>' % MUTED
+    for _, col, row, v, d in sorted(cells):
+        lvl = 0 if v == 0 else min(4, 1 + int(v / mx * 3.999))
+        h = 2 if v == 0 else 4 + (v / mx) ** 0.7 * 84
+        bx, by = ox + (col - row) * dx, oy + (col + row) * dy
+        c = BASES[lvl]
+        top = f"{bx:.1f},{by-h:.1f} {bx+dx:.1f},{by+dy-h:.1f} {bx:.1f},{by+2*dy-h:.1f} {bx-dx:.1f},{by+dy-h:.1f}"
+        left = f"{bx-dx:.1f},{by+dy-h:.1f} {bx:.1f},{by+2*dy-h:.1f} {bx:.1f},{by+2*dy:.1f} {bx-dx:.1f},{by+dy:.1f}"
+        right = f"{bx+dx:.1f},{by+dy-h:.1f} {bx:.1f},{by+2*dy-h:.1f} {bx:.1f},{by+2*dy:.1f} {bx+dx:.1f},{by+dy:.1f}"
+        body += (f'<g><polygon points="{left}" fill="{shade(c, .72)}"/><polygon points="{right}" fill="{shade(c, .52)}"/>'
+                 f'<polygon points="{top}" fill="{c}"/><title>{v} on {d}</title></g>')
+
+    # radar: activity mix
+    cc = prof["contributionsCollection"]
+    axes = [("Commits", cc["totalCommitContributions"]), ("PRs", cc["totalPullRequestContributions"]),
+            ("Issues", cc["totalIssueContributions"]), ("Reviews", cc["totalPullRequestReviewContributions"]),
+            ("Repos", cc["totalRepositoryContributions"])]
+    cx, cy, R = 690, 150, 66
+    big = math.log10(1 + max(v for _, v in axes)) or 1
+    pts, labels = [], ""
+    for i, (n, v) in enumerate(axes):
+        a = -math.pi / 2 + i * 2 * math.pi / 5
+        k = math.log10(1 + v) / big
+        pts.append(f"{cx + R*k*math.cos(a):.1f},{cy + R*k*math.sin(a):.1f}")
+        lx, ly = cx + (R + 22) * math.cos(a), cy + (R + 20) * math.sin(a)
+        anchor = "middle" if abs(math.cos(a)) < .3 else ("start" if math.cos(a) > 0 else "end")
+        labels += (f'<text x="{lx:.0f}" y="{ly:.0f}" fill="{MUTED}" font-size="11" text-anchor="{anchor}">{n}</text>'
+                   f'<text x="{lx:.0f}" y="{ly+13:.0f}" fill="{TEXT}" font-size="11" font-weight="600" text-anchor="{anchor}">{v:,}</text>')
+    for ring in (.33, .66, 1):
+        ring_pts = " ".join(f"{cx + R*ring*math.cos(-math.pi/2 + i*2*math.pi/5):.1f},{cy + R*ring*math.sin(-math.pi/2 + i*2*math.pi/5):.1f}" for i in range(5))
+        body += f'<polygon points="{ring_pts}" fill="none" stroke="{BORDER}"/>'
+    for i in range(5):
+        a = -math.pi / 2 + i * 2 * math.pi / 5
+        body += f'<line x1="{cx}" y1="{cy}" x2="{cx + R*math.cos(a):.1f}" y2="{cy + R*math.sin(a):.1f}" stroke="{BORDER}"/>'
+    body += f'<polygon points="{" ".join(pts)}" fill="{ACCENT}" fill-opacity=".25" stroke="{ACCENT}" stroke-width="2"/>' + labels
+
+    # big numbers
+    total = sum(days.values())
+    cur, longest = streaks(days)
+    for i, (num, lab) in enumerate([(f"{total:,}", "contributions"), (str(longest), "longest streak (days)")]):
+        y = 300 + i * 62
+        body += (f'<text x="620" y="{y}" fill="{TEXT}" font-size="34" font-weight="700">{num}</text>'
+                 f'<text x="620" y="{y+20}" fill="{MUTED}" font-size="12.5">{lab}</text>')
+
+    # donut: languages
+    top = lang_top(prof)
+    tot = sum(sz for _, sz in top) or 1
+    r, sw, dcx, dcy = 46, 16, 92, 352
+    circ, off = 2 * math.pi * r, 0.0
+    for i, (n, sz) in enumerate(top):
+        ln = sz / tot * circ
+        body += (f'<circle cx="{dcx}" cy="{dcy}" r="{r}" fill="none" stroke="{LANG_COLORS[i]}" stroke-width="{sw}" '
+                 f'stroke-dasharray="{ln:.2f} {circ-ln:.2f}" stroke-dashoffset="{-off:.2f}" transform="rotate(-90 {dcx} {dcy})"/>')
+        off += ln
+    for i, (n, sz) in enumerate(top[:6]):
+        y = 318 + i * 17
+        body += (f'<circle cx="176" cy="{y}" r="4.5" fill="{LANG_COLORS[i]}"/>'
+                 f'<text x="188" y="{y+4}" fill="{TEXT}" font-size="12">{esc(n)}</text>'
+                 f'<text x="300" y="{y+4}" fill="{MUTED}" font-size="12" text-anchor="end">{sz/tot*100:.0f}%</text>')
+    return frame(440, body)
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     days, prof = best_calendar(), fetch_profile()
     (OUT / "stats.svg").write_text(stats_svg(days, prof))
     (OUT / "activity.svg").write_text(activity_svg(days))
-    (OUT / "languages.svg").write_text(languages_svg(prof))
+    (OUT / "isometric.svg").write_text(iso_svg(days, prof))
     print(f"ok: {sum(days.values())} contributions across {len(days)} days -> {OUT}")
 
 
