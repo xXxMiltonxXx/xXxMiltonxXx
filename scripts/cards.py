@@ -3,6 +3,7 @@
 
 Usage: python3 scripts/cards.py
 """
+import base64
 import textwrap
 from pathlib import Path
 
@@ -32,31 +33,19 @@ def pills(x, y, labels, color=ACCENT):
     return out
 
 
-# Brain icon: "brain-circuit" from Lucide (https://lucide.dev), ISC license.
-BRAIN_PATHS = [
-    "M12 13h4", "M12 18h6a2 2 0 012 2v1", "M12 8h8", "M12 9a4.17 4.17 0 01-3 4", "M16 8V5a2 2 0 012-2",
-    "M6 18a4 4 0 01-2-7.465", "M6.004 5.125a4 4 0 00-2.526 5.77", "M6.294 6.294A3 3 0 1112 5v13a4 4 0 11-7.967-.518",
-]
-BRAIN_NODES = [(16, 13), (18, 3), (20, 21), (20, 8)]
-
-
-def brain(cx, cy, size):
-    k = size / 24
-    g = f'<circle cx="{cx}" cy="{cy}" r="{size*0.62:.0f}" fill="{ACCENT}" fill-opacity=".06" stroke="{ACCENT}" stroke-opacity=".18"/>'
-    g += f'<g transform="translate({cx - size/2:.1f},{cy - size/2:.1f}) scale({k:.3f})" fill="none" stroke="{ACCENT}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'
-    g += "".join(f'<path d="{d}" vector-effect="non-scaling-stroke"/>' for d in BRAIN_PATHS)
-    for i, (x, y) in enumerate(BRAIN_NODES):
-        g += f'<circle cx="{x}" cy="{y}" r="0.9" fill="{ACCENT}" stroke="none" style="animation:pulse 2.6s ease-in-out {i*0.5:.1f}s infinite"/>'
-    return g + "</g>"
+def brain_image(x, y, height):
+    """Stipple brain illustration (assets/brain.png), embedded as a data URI so it works inside <img> SVGs."""
+    data = base64.b64encode((OUT / "brain.png").read_bytes()).decode()
+    w = height * 537 / 400
+    return f'<image x="{x:.0f}" y="{y}" width="{w:.0f}" height="{height}" href="data:image/png;base64,{data}"/>'
 
 
 def hero():
     body = (f'<text x="40" y="82" fill="{TEXT}" font-size="40" font-weight="700">Milton Angamarca</text>'
             f'<text x="40" y="116" fill="{ACCENT}" font-size="19" font-weight="600">AI systems engineer</text>'
             f'<text x="40" y="144" fill="{MUTED}" font-size="14.5">Second brain systems · Operations automation · LLM pipelines</text>'
-            + pills(40, 168, ["Python", "TypeScript", "Rust", "Meta Tech Provider"]) + brain(690, 110, 150))
-    style = "@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}"
-    return svg(220, body, style)
+            + pills(40, 168, ["Python", "TypeScript", "Rust", "Meta Tech Provider"]) + brain_image(545, 14, 192))
+    return svg(220, body)
 
 
 def about():
