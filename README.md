@@ -1,6 +1,6 @@
 # Milton Angamarca
 
-**Full-stack & AI engineer.** I build LLM-powered backends, agent orchestration and mission-critical systems.
+**AI systems engineer.** I build second brain systems, operations automation and LLM pipelines.
 
 ---
 
@@ -8,11 +8,11 @@
 
 ```ts
 const milton = {
-  role: "Full-stack & AI engineer",
+  role: "AI systems engineer",
   focus: [
-    "LLM agents and workflow orchestrators",
-    "Mission-critical backends and integrations",
-    "Web platforms and APIs",
+    "Second brain systems: persistent memory and knowledge for AI agents",
+    "Operations automation for critical workflows",
+    "LLM pipelines and agent orchestration",
   ],
   daily: ["TypeScript", "Python", "Node.js", "Astro"],
   alsoWrites: ["Rust", "Swift", "C#", "Go", "Kotlin", "Dart"],
